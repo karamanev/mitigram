@@ -3,13 +3,17 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "e2e"
   ],
   "scripts": {
+    "start": "concurrently \"npm run dev:be\" \"npm run dev:fe\"",
     "dev": "concurrently \"npm run dev:be\" \"npm run dev:fe\"",
     "dev:be": "npm run start:dev --workspace=apps/backend",
     "dev:fe": "npm run start --workspace=apps/frontend",
-    "db:seed": "npm run db:seed --workspace=apps/backend"
+    "db:seed": "npm run db:seed --workspace=apps/backend",
+    "test:e2e": "npm run test --workspace=e2e",
+    "test:e2e:headed": "npm run test:headed --workspace=e2e"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

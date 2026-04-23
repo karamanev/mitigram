@@ -28,7 +28,7 @@ import { InvitationStore, type SelectedGroup } from '../../../store/invitation.s
         <button
           class="btn btn--icon card__remove"
           (click)="store.removeGroup(group.id)"
-          aria-label="Remove group {{ group.name }}"
+          [attr.aria-label]="'Remove group ' + group.name"
         >×</button>
       </div>
 
@@ -60,7 +60,7 @@ import { InvitationStore, type SelectedGroup } from '../../../store/invitation.s
       border: 1px solid var(--line);
       border-radius: 6px;
       overflow: hidden;
-      background: #fff;
+      background: var(--bg-white);
     }
 
     .card__header {
@@ -141,11 +141,10 @@ import { InvitationStore, type SelectedGroup } from '../../../store/invitation.s
       font-size: 0.8rem;
       color: var(--headline);
       flex: 1;
-
-      &--excluded {
-        color: var(--line);
-        text-decoration: line-through;
-      }
+    }
+    .card__member-name--excluded {
+      color: var(--line);
+      text-decoration: line-through;
     }
 
     .card__member-email {

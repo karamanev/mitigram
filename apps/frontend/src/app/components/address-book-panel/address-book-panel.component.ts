@@ -75,12 +75,11 @@ type Tab = 'individuals' | 'groups';
       transition: color 0.15s, border-color 0.15s;
 
       &:hover { color: var(--headline); }
-
-      &--active {
-        color: var(--primary);
-        border-bottom-color: var(--primary);
-        font-weight: 600;
-      }
+    }
+    .panel__tab--active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
     }
 
     .panel__body {

@@ -81,8 +81,13 @@ everything. This means:
 - The backend stays a thin persistence layer
 
 **Prisma with SQLite for the demo.** SQLite means zero infra — one `.db`
-file, no Docker, no connection string fiddling. Swap to Postgres by changing
-one line in `schema.prisma` when/if needed.
+file, no connection string fiddling. Swap to Postgres by changing one line
+in `schema.prisma` when/if needed.
+
+**Docker is available but optional.** `docker compose up --build` builds and
+starts both services with no local Node setup required. The backend image runs
+`prisma db push` + seed on every start (idempotent). For local development,
+running `npm start` from the root is faster (no rebuild step).
 
 **Stable seed IDs.** The seed uses `contact_alice`, `group_eu_banks` etc.
 instead of generated cuid(). This makes the database readable when
@@ -106,11 +111,16 @@ These tests own a separate database that is created fresh and deleted after
 each run — never touch `dev.db`. They lock in what the API promises to
 return so the frontend can rely on it.
 
-**What we're not testing (yet):** component rendering, user interactions,
-Angular template logic. That would require Karma/Cypress and is lower
-priority for a demo assignment. If time allows, a Cypress smoke test of
-the happy path (open dialog → add group → send → see 201) would be the
-highest-value addition.
+**Playwright e2e tests (`e2e/*.spec.ts`)** — end-to-end smoke tests that
+drive a real browser against the running stack. These cover all 5 requirement
+flows: adding individuals, adding groups, excluding group members, typing
+ad-hoc emails (including paste), and reviewing the final deduplicated list
+before sending. Run with `npm run test:e2e` from the `e2e/` directory. Use
+`--headed` to watch the browser during development.
+
+**What we're not testing:** component rendering in isolation. The Playwright
+suite covers the visible behaviour; if you need unit tests for a new component,
+add them to `apps/frontend/src` alongside the component.
 
 ---
 
@@ -183,10 +193,10 @@ npm run db:seed      # populates dev.db
 3. `npm install` from repo root
 4. Resume sync
 5. `cd apps/backend && npx prisma db push && npm run db:seed`
-6. `npm run dev` from root → backend on :3000, frontend on :4200
+6. `npm start` (or `npm run dev`) from root → backend on :3000, frontend on :4200
 7. Open `http://localhost:4200`, click "Invite counterparties", exercise all 5 requirements
-8. `npm run test:e2e` from `apps/backend` — should be 30 passing
-9. `npm run test:unit` from `apps/frontend` — should be 40 passing
+8. `npm run test:e2e` from `apps/backend` — should be 31 passing
+9. `npm run test:unit` from `apps/frontend` — should be 30 passing
 
 If anything is broken, the tests will tell you exactly where. Don't debug
 the UI until the tests pass — the tests are faster feedback.
@@ -217,7 +227,6 @@ needed.
 |---|---|---|
 | 1 | Git commit + push to GitLab | Nothing is safe until it's in the remote |
 | 2 | Smoke-test end to end manually | Confirm the wiring actually works after clean install |
-| 3 | Cypress happy-path smoke test | Nice to have — open dialog → add group → send → assert 201 |
 
 **Commit frequently and with intent.** The reviewer will read the git log.
 Each commit should represent one coherent change: `feat: add group exclusion`,

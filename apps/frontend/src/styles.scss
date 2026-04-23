@@ -6,10 +6,13 @@
   --text:           #5D5D5D;
   --line:           #C6C6C6;
   --bg-grey:        #EFEFEF;
+  --bg-white:       #FFFFFF;
+  --text-inverse:   #FFFFFF;
   --notification:   #F96429;
   --unread:         #EBFAFF;
   --menu-dark:      #084153;
   --menu-highlight: #0F586F;
+  --overlay:        rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Reset / base ─────────────────────────────────────────────────────────── */
@@ -46,7 +49,7 @@ html, body {
 
   &--primary {
     background: var(--primary);
-    color: #fff;
+    color: var(--text-inverse);
 
     &:not(:disabled):hover {
       background: var(--primary-dark);

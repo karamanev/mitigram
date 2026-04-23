@@ -88,12 +88,9 @@ import { InvitationStore } from '../../../store/invitation.store';
       user-select: none;
 
       &:hover { background: var(--bg-grey); }
-
-      &--selected {
-        background: var(--unread);
-        &:hover { background: var(--unread); }
-      }
     }
+    .tab__item--selected { background: var(--unread); }
+    .tab__item--selected:hover { background: var(--unread); }
 
     .tab__icon {
       font-size: 1rem;

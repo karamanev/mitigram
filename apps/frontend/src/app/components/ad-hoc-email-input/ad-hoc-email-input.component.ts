@@ -3,6 +3,10 @@ import { InvitationStore } from '../../store/invitation.store';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Extracts email-shaped tokens from arbitrary pasted text.
+// Handles comma/semicolon lists, Outlook-style "Name <email>" strings, etc.
+const PASTE_EMAIL_RE = /[^\s<>(),;]+@[^\s<>(),;]+\.[^\s<>(),;]+/g;
+
 @Component({
   selector: 'app-ad-hoc-email-input',
   standalone: true,
@@ -16,8 +20,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         class="zone__input"
         [class.zone__input--error]="invalid()"
         type="email"
-        placeholder="email@example.com — press Enter, comma or Tab to add"
+        placeholder="email@example.com — Enter, comma, semicolon or Tab; paste a list"
         (keydown)="onKeydown($event, inputEl)"
+        (paste)="onPaste($event, inputEl)"
         (blur)="onBlur(inputEl)"
       />
       @if (invalid()) {
@@ -48,8 +53,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       &:focus { border-color: var(--primary); }
       &::placeholder { color: var(--line); }
-      &--error { border-color: var(--notification); }
     }
+    .zone__input--error { border-color: var(--notification); }
 
     .zone__error {
       margin: 0.3rem 0 0;
@@ -70,11 +75,36 @@ export class AdHocEmailInputComponent implements AfterViewInit {
   }
 
   protected onKeydown(event: KeyboardEvent, input: HTMLInputElement): void {
-    if (event.key === 'Enter' || event.key === ',' || event.key === 'Tab') {
+    if (event.key === 'Enter' || event.key === ',' || event.key === ';' || event.key === 'Tab') {
       event.preventDefault();
-      this.tryAdd(input.value.replace(/,$/, '').trim(), input);
+      this.tryAdd(input.value.replace(/[,;]$/, '').trim(), input);
     } else {
       this.invalid.set(false);
+    }
+  }
+
+  protected onPaste(event: ClipboardEvent, input: HTMLInputElement): void {
+    const text = event.clipboardData?.getData('text') ?? '';
+    const candidates = text.match(PASTE_EMAIL_RE) ?? [];
+
+    if (candidates.length === 0) return;
+
+    event.preventDefault();
+
+    let anyInvalid = false;
+    for (const candidate of candidates) {
+      if (EMAIL_RE.test(candidate)) {
+        this.store.addAdHocEmail(candidate);
+      } else {
+        anyInvalid = true;
+      }
+    }
+
+    if (anyInvalid) {
+      this.invalid.set(true);
+    } else {
+      this.invalid.set(false);
+      input.value = '';
     }
   }
 

@@ -88,20 +88,16 @@ import { InvitationStore } from '../../../store/invitation.store';
       user-select: none;
 
       &:hover { background: var(--bg-grey); }
-
-      &--selected {
-        background: var(--unread);
-
-        &:hover { background: var(--unread); }
-      }
     }
+    .tab__item--selected { background: var(--unread); }
+    .tab__item--selected:hover { background: var(--unread); }
 
     .tab__avatar {
       width: 28px;
       height: 28px;
       border-radius: 50%;
       background: var(--primary);
-      color: #fff;
+      color: var(--text-inverse);
       display: flex;
       align-items: center;
       justify-content: center;

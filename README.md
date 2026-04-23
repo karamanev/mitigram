@@ -26,8 +26,24 @@ types.
 | Backend | NestJS 10, Prisma 5, SQLite |
 | Shared types | `packages/shared` — consumed by both apps |
 | Styling | Plain SCSS + CSS custom properties — no UI library |
-| Backend tests | Jest + Supertest (e2e, 30 tests) |
-| Frontend tests | Jest (unit, 40 tests — InvitationStore logic) |
+| Backend tests | Jest + Supertest (e2e, 31 tests) |
+| Frontend tests | Jest (unit, 30 tests — InvitationStore logic) |
+| Browser tests | Playwright (15 tests — all 5 requirement flows) |
+
+---
+
+## Running with Docker
+
+The quickest way to run the full stack with no local Node setup:
+
+```bash
+docker compose up --build
+```
+
+- Frontend → http://localhost:4200
+- Backend  → http://localhost:3000
+
+The backend container runs `prisma db push` and seeds the database on every start (both operations are idempotent). The SQLite file lives inside the container — add the `volumes` block in `docker-compose.yml` to persist it across restarts.
 
 ---
 
@@ -78,13 +94,18 @@ npm run dev:fe   # frontend only
 ## Running the tests
 
 ```bash
-# Backend — 30 e2e tests (spins up real app + SQLite test.db)
+# Backend — 31 e2e tests (spins up real app + SQLite test.db)
 cd apps/backend
 npm run test:e2e
 
-# Frontend — 40 unit tests (InvitationStore signal logic, no DOM)
+# Frontend — 30 unit tests (InvitationStore signal logic, no DOM)
 cd apps/frontend
 npm run test:unit
+
+# Playwright browser tests — all 5 requirement flows (requires stack running)
+npm start &          # start backend + frontend first
+npm run test:e2e     # headless, from root
+npm run test:e2e:headed  # headed — watch the browser
 ```
 
 ---
@@ -100,12 +121,15 @@ mitigram-invite/
 │   │   ├── contacts/       GET /api/contacts
 │   │   ├── groups/         GET /api/groups
 │   │   └── invitations/    POST /api/instruments/:id/invitations
-│   └── test/               e2e specs
-└── apps/frontend/          Angular app (port 4200)
-    └── src/app/
-        ├── store/          InvitationStore (signals)
-        ├── services/       ApiService (HTTP)
-        └── components/     InviteDialog + all child components
+│   └── test/               backend e2e specs (Jest + Supertest)
+├── apps/frontend/          Angular app (port 4200)
+│   └── src/app/
+│       ├── store/          InvitationStore (signals)
+│       ├── services/       ApiService (HTTP)
+│       └── components/     InviteDialog + all child components
+└── e2e/                    Playwright browser tests (all 5 req flows)
+    └── tests/
+        └── invite-workflow.spec.ts
 ```
 
 ---

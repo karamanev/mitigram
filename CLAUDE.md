@@ -288,8 +288,6 @@ frontend**, so there's one source of truth.
 
 ## Out of scope (for now)
 
-- Deployment / hosting configs — deferred.
-- Docker / docker-compose — deferred.
 - Real email sending.
 - Authentication & multi-tenancy.
 - Editing the address book from the invite dialog.
@@ -297,13 +295,14 @@ frontend**, so there's one source of truth.
 
 ---
 
-## Running locally *(to be filled in once scaffolded)*
+## Running locally
 
 ```bash
 # install
 npm install
 
-# dev (frontend + backend in parallel)
+# dev (frontend + backend in parallel) — either works:
+npm start
 npm run dev
 
 # frontend only
@@ -315,6 +314,19 @@ npm run dev:be       # → http://localhost:3000
 # seed the db
 npm run db:seed
 ```
+
+## Running with Docker
+
+```bash
+docker compose up --build
+```
+
+- Frontend → http://localhost:4200
+- Backend  → http://localhost:3000
+
+The backend container runs `prisma db push` and seeds the database on every
+start (both are idempotent). The SQLite file lives inside the container;
+uncomment the `volumes` block in `docker-compose.yml` to persist it.
 
 ---
 
@@ -344,5 +356,6 @@ When assisting with code changes:
 - [x] Build the three zones of the dialog
 - [x] Implement the review + send step
 - [x] Polish per the styleguide
-- [ ] Smoke-test the full flow end to end (run `npm run dev`, open :4200, exercise all 5 requirements manually)
-- [ ] Add deployment config (deferred)
+- [x] Add Docker / docker-compose config
+- [x] Add Playwright e2e tests covering all 5 requirements
+- [ ] Smoke-test the full flow end to end (run `npm start`, open :4200, exercise all 5 requirements manually)

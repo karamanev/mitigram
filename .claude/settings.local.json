@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(\"../../node_modules/.bin/prisma\" migrate:*)",
+      "Bash(node \"../../node_modules/prisma/build/index.js\" migrate dev --name init)",
+      "Bash(npm --version)",
+      "Bash(ng version:*)",
+      "Bash(npx @angular/cli version)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(npx prisma *)",
+      "Bash(/c/Users/GeorgiKaramanev/Desktop/Assignment/node_modules/.bin/prisma --version)",
+      "Bash(./node_modules/.bin/prisma db *)",
+      "Bash(../../node_modules/.bin/prisma db *)",
+      "Bash(npm run *)",
+      "Bash(git -C /c/Users/GeorgiKaramanev/Desktop/Assignment status)",
+      "Bash(git *)",
+      "Bash(node -e \"console.log\\(require\\('/c/Users/GeorgiKaramanev/Desktop/Assignment/node_modules/rxjs/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('/c/Users/GeorgiKaramanev/Desktop/Assignment/apps/frontend/node_modules/rxjs/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('/c/Users/GeorgiKaramanev/Desktop/Assignment/apps/backend/node_modules/rxjs/package.json'\\).version\\)\")",
+      "WebFetch(domain:claude.ai)"
+    ]
+  }
+}

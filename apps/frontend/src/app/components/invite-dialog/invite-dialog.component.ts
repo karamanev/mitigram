@@ -1,19 +1,31 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   OnInit,
   Output,
   inject,
   signal,
 } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { InvitationStore } from '../../store/invitation.store';
 import { ApiService } from '../../services/api.service';
 import { AdHocEmailInputComponent } from '../ad-hoc-email-input/ad-hoc-email-input.component';
 import { AddressBookPanelComponent } from '../address-book-panel/address-book-panel.component';
 import { RecipientsPanelComponent } from '../recipients-panel/recipients-panel.component';
 import { ReviewAndSendComponent } from '../review-and-send/review-and-send.component';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
 
 @Component({
   selector: 'app-invite-dialog',
@@ -122,7 +134,7 @@ import { ReviewAndSendComponent } from '../review-and-send/review-and-send.compo
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--overlay);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -131,7 +143,7 @@ import { ReviewAndSendComponent } from '../review-and-send/review-and-send.compo
     }
 
     .dialog {
-      background: #fff;
+      background: var(--bg-white);
       border-radius: 8px;
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
       width: min(940px, 100%);
@@ -174,15 +186,14 @@ import { ReviewAndSendComponent } from '../review-and-send/review-and-send.compo
       background: linear-gradient(90deg, var(--bg-grey) 25%, var(--line) 50%, var(--bg-grey) 75%);
       background-size: 600px 100%;
       animation: shimmer 1.4s infinite linear;
-
-      &--input  { height: 36px; width: 100%; flex-shrink: 0; }
-      &--title  { height: 12px; width: 80px; margin-bottom: 0.75rem; }
-      &--tabs   { height: 28px; width: 160px; margin-bottom: 0.75rem; }
-      &--row    { height: 38px; width: 100%; margin-bottom: 0.4rem; }
-      &--empty  { height: 80px; width: 100%; margin-top: 0.5rem; }
-      &--count  { height: 16px; width: 120px; display: inline-block; }
-      &--btn    { height: 34px; width: 140px; display: inline-block; border-radius: 4px; }
     }
+    .skeleton--input  { height: 36px; width: 100%; flex-shrink: 0; }
+    .skeleton--title  { height: 12px; width: 80px; margin-bottom: 0.75rem; }
+    .skeleton--tabs   { height: 28px; width: 160px; margin-bottom: 0.75rem; }
+    .skeleton--row    { height: 38px; width: 100%; margin-bottom: 0.4rem; }
+    .skeleton--empty  { height: 80px; width: 100%; margin-top: 0.5rem; }
+    .skeleton--count  { height: 16px; width: 120px; display: inline-block; }
+    .skeleton--btn    { height: 34px; width: 140px; display: inline-block; border-radius: 4px; }
 
     /* Loading / error state */
     .dialog__state {
@@ -194,9 +205,8 @@ import { ReviewAndSendComponent } from '../review-and-send/review-and-send.compo
       color: var(--text);
       font-size: 0.9rem;
       text-align: center;
-
-      &--error { color: var(--notification); }
     }
+    .dialog__state--error { color: var(--notification); }
 
     /* Main body */
     .dialog__body {
@@ -283,6 +293,7 @@ export class InviteDialogComponent implements OnInit {
 
   protected readonly store = inject(InvitationStore);
   private readonly api = inject(ApiService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly showReview = signal(false);
   protected readonly loading = signal(true);
@@ -298,26 +309,63 @@ export class InviteDialogComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    let contactsDone = false;
-    let groupsDone = false;
-
-    const checkDone = (): void => {
-      if (contactsDone && groupsDone) this.loading.set(false);
-    };
-
-    this.api.getContacts().subscribe({
-      next: contacts => { this.store.contacts.set(contacts); contactsDone = true; checkDone(); },
-      error: () => { this.error.set('Failed to load the address book.'); this.loading.set(false); },
-    });
-
-    this.api.getGroups().subscribe({
-      next: groups => { this.store.groups.set(groups); groupsDone = true; checkDone(); },
-      error: () => { this.error.set('Failed to load the address book.'); this.loading.set(false); },
+    forkJoin({
+      contacts: this.api.getContacts(),
+      groups: this.api.getGroups(),
+    }).subscribe({
+      next: ({ contacts, groups }) => {
+        this.store.contacts.set(contacts);
+        this.store.groups.set(groups);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load the address book.');
+        this.loading.set(false);
+      },
     });
   }
 
   protected close(): void {
     this.store.reset();
     this.closed.emit();
+  }
+
+  // ── Keyboard handling ────────────────────────────────────────────────────
+  // Escape closes from anywhere; Tab is trapped inside the dialog so keyboard
+  // users never land on page content behind the modal.
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    this.close();
+  }
+
+  @HostListener('keydown.tab', ['$event'])
+  protected onTab(event: KeyboardEvent): void {
+    this.trapFocus(event, false);
+  }
+
+  @HostListener('keydown.shift.tab', ['$event'])
+  protected onShiftTab(event: KeyboardEvent): void {
+    this.trapFocus(event, true);
+  }
+
+  private trapFocus(event: KeyboardEvent, reverse: boolean): void {
+    const focusables = (
+      Array.from(this.host.nativeElement.querySelectorAll(FOCUSABLE_SELECTOR)) as HTMLElement[]
+    ).filter(el => el.offsetParent !== null);
+
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (reverse && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!reverse && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 }

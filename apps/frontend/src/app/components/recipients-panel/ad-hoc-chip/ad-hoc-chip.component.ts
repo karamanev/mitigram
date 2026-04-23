@@ -16,7 +16,7 @@ import { InvitationStore } from '../../../store/invitation.store';
       <button
         class="chip__remove btn btn--icon"
         (click)="store.removeAdHocEmail(email)"
-        aria-label="Remove {{ email }}"
+        [attr.aria-label]="'Remove ' + email"
       >×</button>
     </span>
   `,
@@ -27,7 +27,7 @@ import { InvitationStore } from '../../../store/invitation.store';
       align-items: center;
       gap: 0.35rem;
       padding: 0.3rem 0.5rem;
-      background: #fff;
+      background: var(--bg-white);
       border: 1px dashed var(--primary);
       border-radius: 16px;
       font-size: 0.8rem;

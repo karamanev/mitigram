@@ -18,7 +18,7 @@ import { InvitationStore } from '../../../store/invitation.store';
       <button
         class="chip__remove btn btn--icon"
         (click)="store.removeIndividual(contact.id)"
-        aria-label="Remove {{ contact.name }}"
+        [attr.aria-label]="'Remove ' + contact.name"
       >×</button>
     </span>
   `,

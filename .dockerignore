@@ -1,0 +1,25 @@
+# Dependencies — reinstalled inside the image
+node_modules
+**/node_modules
+
+# Build outputs
+**/dist
+apps/backend/generated
+apps/frontend/.angular
+
+# Databases — never bake local state into the image
+*.db
+*.db-journal
+
+# Test artefacts
+**/test.db
+**/coverage
+
+# Git
+.git
+.gitignore
+
+# Docs / editor
+*.md
+.vscode
+.idea

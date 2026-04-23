@@ -19,7 +19,7 @@ import { InviteDialogComponent } from './components/invite-dialog/invite-dialog.
             <span class="instrument-card__type">Letter of Credit · EUR 1,200,000</span>
             <span class="instrument-card__status">Active</span>
           </div>
-          <button class="btn btn--primary" (click)="dialogOpen.set(true)">
+          <button class="btn btn--primary" (click)="openDialog()">
             Invite counterparties
           </button>
         </div>
@@ -28,7 +28,7 @@ import { InviteDialogComponent } from './components/invite-dialog/invite-dialog.
       @if (dialogOpen()) {
         <app-invite-dialog
           instrumentId="LC-2024-001"
-          (closed)="dialogOpen.set(false)"
+          (closed)="closeDialog()"
         />
       }
     </div>
@@ -49,7 +49,7 @@ import { InviteDialogComponent } from './components/invite-dialog/invite-dialog.
     }
 
     .topbar__brand {
-      color: #fff;
+      color: var(--text-inverse);
       font-weight: 700;
       font-size: 1.2rem;
       letter-spacing: 0.03em;
@@ -64,7 +64,7 @@ import { InviteDialogComponent } from './components/invite-dialog/invite-dialog.
 
     /* ── Instrument card ────────────────────────────────────────── */
     .instrument-card {
-      background: #fff;
+      background: var(--bg-white);
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 1.5rem;
@@ -100,4 +100,16 @@ import { InviteDialogComponent } from './components/invite-dialog/invite-dialog.
 })
 export class AppComponent {
   protected readonly dialogOpen = signal(false);
+  private previouslyFocused: HTMLElement | null = null;
+
+  protected openDialog(): void {
+    this.previouslyFocused = document.activeElement as HTMLElement | null;
+    this.dialogOpen.set(true);
+  }
+
+  protected closeDialog(): void {
+    this.dialogOpen.set(false);
+    // Restore focus on the next tick so the trigger exists again in the DOM.
+    queueMicrotask(() => this.previouslyFocused?.focus());
+  }
 }

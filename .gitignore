@@ -4,8 +4,10 @@ dist/
 
 # Prisma generated client and databases
 apps/backend/generated/
-apps/backend/*.db
-apps/backend/*.db-journal
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 
 # env
 .env
