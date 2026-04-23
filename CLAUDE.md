@@ -338,10 +338,11 @@ When assisting with code changes:
 
 ## Open questions / TODOs
 
-- [ ] Scaffold the monorepo (Angular + NestJS + shared package)
-- [ ] Write the Prisma seed with our own mock data (see "Mock data" section)
-- [ ] Wire the `InvitationStore` with unit tests for `finalEmails`
-- [ ] Build the three zones of the dialog
-- [ ] Implement the review + send step
-- [ ] Polish per the styleguide
+- [x] Scaffold the monorepo (Angular + NestJS + shared package)
+- [x] Write the Prisma seed with our own mock data (see "Mock data" section)
+- [x] Wire the `InvitationStore` with unit tests for `finalEmails`
+- [x] Build the three zones of the dialog
+- [x] Implement the review + send step
+- [x] Polish per the styleguide
+- [ ] Smoke-test the full flow end to end (run `npm run dev`, open :4200, exercise all 5 requirements manually)
 - [ ] Add deployment config (deferred)
