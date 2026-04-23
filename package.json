@@ -1,0 +1,17 @@
+{
+  "name": "mitigram-invite",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:be\" \"npm run dev:fe\"",
+    "dev:be": "npm run start:dev --workspace=apps/backend",
+    "dev:fe": "npm run start --workspace=apps/frontend",
+    "db:seed": "npm run db:seed --workspace=apps/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

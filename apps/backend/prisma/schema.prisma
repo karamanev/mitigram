@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id     String        @id
+  name   String
+  email  String        @unique
+  groups GroupMember[]
+}
+
+model Group {
+  id      String        @id
+  name    String
+  members GroupMember[]
+}
+
+model GroupMember {
+  contactId String
+  groupId   String
+  contact   Contact @relation(fields: [contactId], references: [id])
+  group     Group   @relation(fields: [groupId], references: [id])
+
+  @@id([contactId, groupId])
+}
+
+model Invitation {
+  id           String   @id @default(cuid())
+  instrumentId String
+  emails       String
+  sentAt       DateTime @default(now())
+}
