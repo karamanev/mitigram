@@ -1,9 +1,9 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY MitigramApi.csproj ./
+COPY apps/backend/MitigramApi.csproj ./
 RUN dotnet restore
-COPY . ./
+COPY apps/backend/ ./
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
