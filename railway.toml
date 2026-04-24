@@ -1,6 +1,0 @@
-[build]
-builder = "dockerfile"
-dockerfilePath = "apps/backend/Dockerfile"
-
-[deploy]
-startCommand = "dotnet MitigramApi.dll"

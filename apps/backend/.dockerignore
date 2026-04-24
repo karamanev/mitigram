@@ -1,0 +1,10 @@
+bin
+obj
+*.db
+*.db-journal
+test.db
+.git
+.gitignore
+*.md
+.vscode
+.idea
