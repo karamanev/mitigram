@@ -46,7 +46,8 @@
       "PowerShell(cmd /c \"dir /b /s \"\"C:\\\\Program Files\\\\dotnet\\\\\"\" 2>nul | findstr /i \"\"Mvc.Testing.dll\"\"\")",
       "PowerShell(cmd /c \"dir /s /b \"\"$env:USERPROFILE\\\\.nuget\\\\packages\\\\microsoft.aspnetcore.mvc.testing\\\\8.0.0\\\\lib\\\\\"\"\")",
       "PowerShell(cmd /c \"dir /s /b \"\"$env:USERPROFILE\\\\.nuget\\\\packages\\\\microsoft.aspnetcore.mvc.testing\\\\9.0.0\\\\lib\\\\\"\"\")",
-      "Bash(npx --prefix apps/frontend ng build --configuration development)"
+      "Bash(npx --prefix apps/frontend ng build --configuration development)",
+      "Bash(xargs grep *)"
     ]
   }
 }

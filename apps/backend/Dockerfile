@@ -11,5 +11,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish ./
 EXPOSE 3000
-ENV ASPNETCORE_URLS=http://+:3000
+ENV ASPNETCORE_HTTP_PORTS=3000
 ENTRYPOINT ["dotnet", "MitigramApi.dll"]

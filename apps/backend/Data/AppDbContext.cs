@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
 using MitigramApi.Models;
 
@@ -6,6 +7,11 @@ namespace MitigramApi.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    private static readonly ValueComparer<string[]> StringArrayComparer = new(
+        (left, right) => left != null && right != null && left.SequenceEqual(right),
+        values => values.Aggregate(0, (hash, value) => HashCode.Combine(hash, value)),
+        values => values.ToArray());
+
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Group> Groups => Set<Group>();
     public DbSet<GroupMember> GroupMembers => Set<GroupMember>();
@@ -30,6 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(i => i.Emails)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<string[]>(v, (JsonSerializerOptions?)null) ?? Array.Empty<string>());
+                v => JsonSerializer.Deserialize<string[]>(v, (JsonSerializerOptions?)null) ?? Array.Empty<string>())
+            .Metadata.SetValueComparer(StringArrayComparer);
     }
 }
