@@ -1,16 +1,15 @@
-# Build stage — restore NuGet packages and publish release build
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY apps/backend/MitigramApi.csproj ./
+COPY MitigramApi.csproj ./
 RUN dotnet restore
-COPY apps/backend/ ./
+COPY . ./
 RUN dotnet publish -c Release -o /app/publish
 
-# Runtime stage — lean ASP.NET runtime image
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish ./
 EXPOSE 3000
 ENV ASPNETCORE_URLS=http://+:3000
-# EnsureCreated + seed run automatically on startup (see Program.cs)
 ENTRYPOINT ["dotnet", "MitigramApi.dll"]

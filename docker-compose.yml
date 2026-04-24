@@ -1,8 +1,7 @@
 services:
   backend:
     build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
+      context: apps/backend
     ports:
       - "3000:3000"
     # Uncomment to persist the SQLite database across container restarts:
@@ -11,8 +10,7 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: apps/frontend/Dockerfile
+      context: apps/frontend
     ports:
       - "4200:80"
     depends_on:
