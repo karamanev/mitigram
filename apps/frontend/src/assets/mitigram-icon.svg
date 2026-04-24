@@ -3,6 +3,6 @@
   <path d="M16 20C16 17.7909 17.7909 16 20 16H44C46.2091 16 48 17.7909 48 20V36C48 38.2091 46.2091 40 44 40H30.5L24 46V40H20C17.7909 40 16 38.2091 16 36V20Z" fill="#EBFAFF"/>
   <path d="M22 24H42" stroke="#177998" stroke-width="3" stroke-linecap="round"/>
   <path d="M22 30H34" stroke="#177998" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="44" cy="44" r="10" fill="#F96429"/>
+  <circle cx="44" cy="44" r="10" fill="#2CABD3"/>
   <path d="M40 44L43 47L49 41" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
