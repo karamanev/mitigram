@@ -5,11 +5,9 @@ services:
       dockerfile: apps/backend/Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      DATABASE_URL: "file:./dev.db"
     # Uncomment to persist the SQLite database across container restarts:
     # volumes:
-    #   - backend-data:/app/apps/backend
+    #   - backend-data:/app
 
   frontend:
     build:

@@ -1,0 +1,100 @@
+.card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-white);
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  gap: 0.25rem;
+}
+
+.card__toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+
+.card__arrow {
+  font-size: 0.7rem;
+  color: var(--text);
+  width: 12px;
+}
+
+.card__name {
+  font-weight: 500;
+  color: var(--headline);
+  font-size: 0.875rem;
+}
+
+.card__count {
+  font-size: 0.75rem;
+  color: var(--text);
+  background: var(--bg-grey);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}
+
+.card__remove {
+  flex-shrink: 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.card__members {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.card__member {
+  border-bottom: 1px solid var(--bg-grey);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.card__member-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-grey);
+  }
+}
+
+.card__checkbox {
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.card__member-name {
+  font-size: 0.8rem;
+  color: var(--headline);
+  flex: 1;
+}
+
+.card__member-name--excluded {
+  color: var(--line);
+  text-decoration: line-through;
+}
+
+.card__member-email {
+  font-size: 0.75rem;
+  color: var(--text);
+}

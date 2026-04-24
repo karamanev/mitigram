@@ -7,7 +7,8 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@angular/core$': '<rootDir>/src/__mocks__/angular-core.ts',
-    '@mitigram/shared': '<rootDir>/../../packages/shared/src/index.ts',
+    '^@angular/common/http$': '<rootDir>/src/__mocks__/angular-common-http.ts',
+    '^@mitigram/shared$': '<rootDir>/src/shared/index.ts',
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
 };

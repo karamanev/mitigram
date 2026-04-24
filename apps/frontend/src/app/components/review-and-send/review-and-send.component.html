@@ -1,0 +1,43 @@
+<div class="review">
+  <div class="review__header">
+    <button class="btn btn--icon review__back" (click)="back.emit()">&larr; Back</button>
+    <h3 class="review__title">Review invitation</h3>
+  </div>
+
+  @if (sendState() === 'success') {
+    <div class="review__success">
+      <span class="review__success-icon">&#10003;</span>
+      <p>Invitations sent successfully!</p>
+      <button class="btn btn--primary" (click)="sent.emit()">Close</button>
+    </div>
+  } @else {
+    @if (sendState() === 'error' && errorMessage()) {
+      <div class="review__toast" role="alert" aria-live="assertive">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <p class="review__subtitle">
+      {{ store.finalEmails().length }} unique email{{ store.finalEmails().length !== 1 ? 's' : '' }}
+      will be invited:
+    </p>
+
+    <ul class="review__list">
+      @for (item of store.emailsWithSources(); track item.email) {
+        <li class="review__item">
+          <span class="review__email">{{ item.email }}</span>
+          <span class="review__hint">{{ item.hint }}</span>
+        </li>
+      }
+    </ul>
+
+    <div class="review__actions">
+      <button class="btn btn--ghost" [disabled]="sendState() === 'sending'" (click)="back.emit()">
+        Back
+      </button>
+      <button class="btn btn--primary" [disabled]="sendState() === 'sending'" (click)="send()">
+        {{ sendState() === 'sending' ? 'Sending...' : 'Confirm & send' }}
+      </button>
+    </div>
+  }
+</div>

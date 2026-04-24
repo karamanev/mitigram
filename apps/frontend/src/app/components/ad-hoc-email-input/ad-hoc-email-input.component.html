@@ -1,0 +1,37 @@
+<div class="zone">
+  <label class="zone__label" for="adhoc-input">Add recipients by email</label>
+  <input
+    id="adhoc-input"
+    #inputEl
+    class="zone__input"
+    [class.zone__input--error]="feedback()?.tone === 'error'"
+    type="email"
+    placeholder="name&#64;company.com"
+    autocomplete="off"
+    spellcheck="false"
+    aria-describedby="adhoc-input-feedback"
+    [attr.aria-invalid]="feedback()?.tone === 'error'"
+    (input)="onInput()"
+    (keydown)="onKeydown($event, inputEl)"
+    (paste)="onPaste($event, inputEl)"
+    (blur)="onBlur(inputEl)"
+  />
+  <p class="zone__hint">
+    Enter one email like <span class="zone__example">alex&#64;buyer.com</span>, or paste a list
+    separated by commas, semicolons, or line breaks. Duplicates are skipped automatically.
+  </p>
+  @if (feedback(); as feedback) {
+    <p
+      id="adhoc-input-feedback"
+      class="zone__feedback"
+      [class.zone__feedback--error]="feedback.tone === 'error'"
+      [class.zone__feedback--info]="feedback.tone === 'info'"
+      [class.zone__feedback--success]="feedback.tone === 'success'"
+      aria-live="polite"
+    >
+      {{ feedback.message }}
+    </p>
+  } @else {
+    <p id="adhoc-input-feedback" class="zone__sr-only">Enter a recipient email address.</p>
+  }
+</div>

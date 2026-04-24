@@ -1,0 +1,54 @@
+<div class="panel">
+  <h3 class="panel__title">Recipients</h3>
+
+  @if (store.crossSourceDuplicates().length > 0) {
+    <div class="panel__duplicate-alert" role="alert">
+      <i class="panel__duplicate-icon">⚠</i>
+      {{ store.crossSourceDuplicates().length }}
+      {{ store.crossSourceDuplicates().length === 1 ? 'address appears' : 'addresses appear' }}
+      in multiple sources — will be sent once each.
+    </div>
+  }
+
+  @if (isEmpty()) {
+    <div class="panel__empty">
+      <p>No recipients yet.</p>
+      <p>Pick contacts or groups from the address book, or type an email above.</p>
+    </div>
+  } @else {
+    <div class="panel__content">
+      @if (store.selectedIndividuals().length > 0) {
+        <div class="panel__section">
+          <span class="panel__section-label">Individuals</span>
+          <div class="panel__chips">
+            @for (contact of store.selectedIndividuals(); track contact.id) {
+              <mitigram-individual-chip [contact]="contact" />
+            }
+          </div>
+        </div>
+      }
+
+      @if (store.adHocEmails().length > 0) {
+        <div class="panel__section">
+          <span class="panel__section-label">Ad-hoc</span>
+          <div class="panel__chips">
+            @for (email of store.adHocEmails(); track email) {
+              <mitigram-ad-hoc-chip [email]="email" />
+            }
+          </div>
+        </div>
+      }
+
+      @if (store.selectedGroups().length > 0) {
+        <div class="panel__section">
+          <span class="panel__section-label">Groups</span>
+          <div class="panel__groups">
+            @for (group of store.selectedGroups(); track group.id) {
+              <mitigram-group-card [group]="group" />
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

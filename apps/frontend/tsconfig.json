@@ -19,7 +19,7 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "paths": {
-      "@mitigram/shared": ["../../packages/shared/src/index.ts"]
+      "@mitigram/shared": ["src/app/types.ts"]
     }
   },
   "angularCompilerOptions": {

@@ -1,0 +1,10 @@
+<span class="chip">
+  <span class="chip__label">{{ email }}</span>
+  <button
+    class="chip__remove btn btn--icon"
+    (click)="store.removeAdHocEmail(email)"
+    [attr.aria-label]="'Remove ' + email"
+  >
+    &times;
+  </button>
+</span>

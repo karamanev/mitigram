@@ -76,55 +76,36 @@ Monorepo, two apps:
 ```
 mitigram-invite/
 ├── apps/
-│   ├── frontend/   # Angular 17+ (standalone components, signals)
-│   └── backend/    # NestJS + Prisma + SQLite
-├── packages/
-│   └── shared/     # shared TS types (Contact, Group, Invitation DTOs)
-├── package.json    # workspaces
-└── README.md
+│   ├── frontend/         # Angular 17+ (standalone components, signals)
+│   └── backend/          # ASP.NET Core 10 + EF Core + SQLite
+└── docker-compose.yml
 ```
 
 - **Frontend:** Angular 17+, standalone components, signals for state,
   OnPush change detection, plain SCSS + CSS variables from the styleguide.
   No Angular Material.
-- **Backend:** NestJS (Angular-style DI/modules on the server), Prisma ORM,
-  SQLite for the demo (swap to Postgres via Prisma provider for prod).
-- **Shared types:** `packages/shared` exports interfaces used by both ends
-  so the contract stays in one place.
+- **Backend:** ASP.NET Core 10 Web API, Entity Framework Core with SQLite.
+  Schema is created via `EnsureCreated()` on startup; seeding runs
+  automatically after. Port 3000. CORS allows `http://localhost:4200`.
+- **Types:** `apps/frontend/src/app/types.ts` holds TypeScript interfaces
+  (`Contact`, `Group`, `Invitation`, etc.). Referenced via the tsconfig path alias
+  `@mitigram/shared`. Mock data for tests lives in `apps/frontend/src/app/mock.ts`.
 
 ---
 
-## Data model (Prisma)
+## Data model
 
-```prisma
-model Contact {
-  id     String        @id @default(cuid())
-  name   String
-  email  String        @unique
-  groups GroupMember[]
-}
+Four entities:
 
-model Group {
-  id      String        @id @default(cuid())
-  name    String
-  members GroupMember[]
-}
+| Entity | Fields |
+|---|---|
+| `Contact` | `id`, `name`, `email` |
+| `Group` | `id`, `name`, `members[]` |
+| `GroupMember` | composite key `(contactId, groupId)` |
+| `Invitation` | `id`, `instrumentId`, `emails` (JSON array), `sentAt` |
 
-model GroupMember {
-  contactId String
-  groupId   String
-  contact   Contact @relation(fields: [contactId], references: [id])
-  group     Group   @relation(fields: [groupId], references: [id])
-  @@id([contactId, groupId])
-}
-
-model Invitation {
-  id           String   @id @default(cuid())
-  instrumentId String
-  emails       String   // JSON array of strings
-  sentAt       DateTime @default(now())
-}
-```
+EF Core entity classes live in `apps/backend/Models/`. Schema is created
+by `EnsureCreated()` on startup; no migration files.
 
 ---
 
@@ -216,9 +197,9 @@ to the root and give it a semantic name.
 
 ## Mock data
 
-We're **not** using any external starter. All sample data is authored by us
-and lives in `apps/backend/prisma/seed.ts`. The goal is a dataset rich
-enough to exercise every requirement without being noisy.
+We're **not** using any external starter. All sample data is authored by us.
+The canonical seed lives in `apps/backend/Data/Seeder.cs`. The frontend's mock data mirror (used in unit tests) lives in `apps/frontend/src/app/mock.ts`. The goal is a
+dataset rich enough to exercise every requirement without being noisy.
 
 ### Shape & volume
 
@@ -237,36 +218,30 @@ enough to exercise every requirement without being noisy.
 - **A few contacts with awkward edge cases:** long names, an email with a
   `+` alias, a non-ASCII name — purely for UI polish testing.
 
-### Conventions for the seed file
+### Conventions for the seed
 
 - Stable, readable IDs (`contact_alice`, `group_eu_banks`) — makes tests
-  and screenshots easier to reason about. No `cuid()` in the seed.
+  and screenshots easier to reason about.
 - No real people's emails. Use fabricated domains like
   `@example-bank.com`, `@demo-corp.eu`.
-- Seed is **idempotent**: `prisma migrate reset --force && npm run db:seed`
-  must produce the exact same dataset every time.
-- Keep the seed file a single TypeScript module — no JSON imports, no
+- Seed is **idempotent**: the seeder checks `db.Contacts.Any()` and no-ops
+  if data is already present.
+- Keep the seed as a single self-contained file — no JSON imports, no
   external data files. Easy to diff, easy to extend.
-
-### Frontend during early development
-
-Before the backend is wired, the frontend can import a typed mock from
-`packages/shared/src/mock.ts` so UI work isn't blocked on API calls. Once
-the backend exists, the same data is used to build the Prisma seed and the
-frontend switches to real HTTP. **The mock lives in `shared`, not in the
-frontend**, so there's one source of truth.
 
 ---
 
 ## Code conventions
 
-- TypeScript **strict** on both ends.
+- TypeScript **strict** on the frontend; C# `<Nullable>enable</Nullable>` on the backend.
 - Angular: standalone components, signals over RxJS where possible,
   OnPush change detection, prefer `inject()` over constructor params.
-- NestJS: feature modules (`contacts`, `groups`, `invitations`),
-  DTOs with `class-validator`, services thin, controllers thinner.
-- File naming: `kebab-case.ts`, component class `PascalCase`.
-- No `any`. Use `unknown` + narrow if you must.
+- C# backend: thin controllers, no service layer (simple enough not to need
+  one), DTOs with Data Annotations, EF Core for persistence.
+- C# naming: PascalCase classes/properties, file-scoped namespaces, primary
+  constructors for DI.
+- Frontend file naming: `kebab-case.ts`, component class `PascalCase`.
+- No `any` in TypeScript. Use `unknown` + narrow if you must.
 - Commits: conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`).
 
 ---
@@ -295,27 +270,7 @@ frontend**, so there's one source of truth.
 
 ---
 
-## Running locally
-
-```bash
-# install
-npm install
-
-# dev (frontend + backend in parallel) — either works:
-npm start
-npm run dev
-
-# frontend only
-npm run dev:fe       # → http://localhost:4200
-
-# backend only
-npm run dev:be       # → http://localhost:3000
-
-# seed the db
-npm run db:seed
-```
-
-## Running with Docker
+## Running
 
 ```bash
 docker compose up --build
@@ -324,9 +279,9 @@ docker compose up --build
 - Frontend → http://localhost:4200
 - Backend  → http://localhost:3000
 
-The backend container runs `prisma db push` and seeds the database on every
-start (both are idempotent). The SQLite file lives inside the container;
-uncomment the `volumes` block in `docker-compose.yml` to persist it.
+The C# backend calls `EnsureCreated()` + `Seeder.SeedAsync()` on every start
+(both are idempotent). The SQLite file lives inside the container; uncomment
+the `volumes` block in `docker-compose.yml` to persist it across restarts.
 
 ---
 
@@ -348,14 +303,20 @@ When assisting with code changes:
 
 ---
 
+## UI implementation notes
+
+- **Loading skeleton** — while contacts/groups load from the API, the dialog shows shimmer placeholder rows. Uses a single CSS `@keyframes shimmer` animation declared directly in the dialog component styles.
+- **Auto-focus** — `AdHocEmailInputComponent` calls `.focus()` on `#inputEl` in `AfterViewInit` so the user can type immediately without clicking.
+- **Responsive stacking** — below 600 px the address book and recipients panels stack vertically. The breakpoint is in the dialog component's inline styles — no global media query.
+
+---
+
 ## Open questions / TODOs
 
-- [x] Scaffold the monorepo (Angular + NestJS + shared package)
-- [x] Write the Prisma seed with our own mock data (see "Mock data" section)
+- [x] Scaffold the project (Angular frontend + ASP.NET Core backend)
 - [x] Wire the `InvitationStore` with unit tests for `finalEmails`
 - [x] Build the three zones of the dialog
 - [x] Implement the review + send step
 - [x] Polish per the styleguide
 - [x] Add Docker / docker-compose config
-- [x] Add Playwright e2e tests covering all 5 requirements
-- [ ] Smoke-test the full flow end to end (run `npm start`, open :4200, exercise all 5 requirements manually)
+- [ ] Smoke-test the full flow end to end (`docker compose up --build`, open :4200, exercise all 5 requirements manually)

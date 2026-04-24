@@ -1,126 +1,155 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import {
+  type AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { InvitationStore } from '../../store/invitation.store';
+import { isValidEmail, normalizeEmail, parseEmailBatch } from './email-validation';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type FeedbackTone = 'error' | 'info' | 'success';
 
-// Extracts email-shaped tokens from arbitrary pasted text.
-// Handles comma/semicolon lists, Outlook-style "Name <email>" strings, etc.
-const PASTE_EMAIL_RE = /[^\s<>(),;]+@[^\s<>(),;]+\.[^\s<>(),;]+/g;
+type ValidationFeedback = {
+  tone: FeedbackTone;
+  message: string;
+};
 
 @Component({
-  selector: 'app-ad-hoc-email-input',
+  selector: 'mitigram-ad-hoc-email-input',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="zone">
-      <label class="zone__label" for="adhoc-input">Add by email</label>
-      <input
-        id="adhoc-input"
-        #inputEl
-        class="zone__input"
-        [class.zone__input--error]="invalid()"
-        type="email"
-        placeholder="email@example.com — Enter, comma, semicolon or Tab; paste a list"
-        (keydown)="onKeydown($event, inputEl)"
-        (paste)="onPaste($event, inputEl)"
-        (blur)="onBlur(inputEl)"
-      />
-      @if (invalid()) {
-        <p class="zone__error">Please enter a valid email address.</p>
-      }
-    </div>
-  `,
-  styles: [`
-    .zone__label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text);
-      margin-bottom: 0.4rem;
-    }
-
-    .zone__input {
-      width: 100%;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      font-size: 0.875rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-
-      &:focus { border-color: var(--primary); }
-      &::placeholder { color: var(--line); }
-    }
-    .zone__input--error { border-color: var(--notification); }
-
-    .zone__error {
-      margin: 0.3rem 0 0;
-      font-size: 0.75rem;
-      color: var(--notification);
-    }
-  `],
+  templateUrl: './ad-hoc-email-input.component.html',
+  styleUrl: './ad-hoc-email-input.component.scss',
 })
 export class AdHocEmailInputComponent implements AfterViewInit {
   @ViewChild('inputEl') private inputEl!: ElementRef<HTMLInputElement>;
 
   protected readonly store = inject(InvitationStore);
-  protected readonly invalid = signal(false);
+  protected readonly feedback = signal<ValidationFeedback | null>(null);
 
   ngAfterViewInit(): void {
-    // Focus the email input as soon as the dialog finishes loading
     this.inputEl.nativeElement.focus();
+  }
+
+  protected onInput(): void {
+    this.feedback.set(null);
   }
 
   protected onKeydown(event: KeyboardEvent, input: HTMLInputElement): void {
     if (event.key === 'Enter' || event.key === ',' || event.key === ';' || event.key === 'Tab') {
       event.preventDefault();
       this.tryAdd(input.value.replace(/[,;]$/, '').trim(), input);
-    } else {
-      this.invalid.set(false);
     }
   }
 
   protected onPaste(event: ClipboardEvent, input: HTMLInputElement): void {
     const text = event.clipboardData?.getData('text') ?? '';
-    const candidates = text.match(PASTE_EMAIL_RE) ?? [];
-
-    if (candidates.length === 0) return;
-
-    event.preventDefault();
-
-    let anyInvalid = false;
-    for (const candidate of candidates) {
-      if (EMAIL_RE.test(candidate)) {
-        this.store.addAdHocEmail(candidate);
-      } else {
-        anyInvalid = true;
-      }
+    const parsed = parseEmailBatch(text);
+    if (parsed.valid.length === 0 && parsed.invalid.length === 0) {
+      return;
     }
 
-    if (anyInvalid) {
-      this.invalid.set(true);
+    event.preventDefault();
+    input.value = '';
+
+    let addedCount = 0;
+    let alreadyIncludedCount = 0;
+
+    for (const email of parsed.valid) {
+      if (this.hasEmailAlreadyIncluded(email)) {
+        alreadyIncludedCount += 1;
+        continue;
+      }
+
+      this.store.addAdHocEmail(email);
+      addedCount += 1;
+    }
+
+    const fragments: string[] = [];
+    if (addedCount > 0) {
+      fragments.push(`Added ${addedCount} email${addedCount === 1 ? '' : 's'}.`);
+    }
+    if (alreadyIncludedCount > 0) {
+      fragments.push(
+        `${alreadyIncludedCount} already included recipient${alreadyIncludedCount === 1 ? ' was' : 's were'} skipped.`,
+      );
+    }
+    if (parsed.invalid.length > 0) {
+      fragments.push(
+        `${parsed.invalid.length} invalid entr${parsed.invalid.length === 1 ? 'y' : 'ies'}: ${parsed.invalid.join(', ')}.`,
+      );
+    }
+
+    if (parsed.invalid.length > 0) {
+      this.feedback.set({
+        tone: 'error',
+        message: fragments.join(' '),
+      });
+    } else if (alreadyIncludedCount > 0 && addedCount === 0) {
+      this.feedback.set({
+        tone: 'info',
+        message: fragments.join(' '),
+      });
+    } else if (fragments.length > 0) {
+      this.feedback.set({
+        tone: 'success',
+        message: fragments.join(' '),
+      });
     } else {
-      this.invalid.set(false);
-      input.value = '';
+      this.feedback.set(null);
     }
   }
 
   protected onBlur(input: HTMLInputElement): void {
     const val = input.value.trim();
-    if (val) this.tryAdd(val, input);
+    if (val) {
+      this.tryAdd(val, input);
+    }
   }
 
   private tryAdd(value: string, input: HTMLInputElement): void {
-    if (!value) return;
-    if (!EMAIL_RE.test(value)) {
-      this.invalid.set(true);
+    const email = normalizeEmail(value);
+    if (!email) {
       return;
     }
-    this.invalid.set(false);
-    this.store.addAdHocEmail(value);
+
+    if (!isValidEmail(email)) {
+      this.feedback.set({
+        tone: 'error',
+        message: 'Enter a valid email address such as name@company.com.',
+      });
+      return;
+    }
+
+    const existingHint = this.getExistingEmailHint(email);
+    if (existingHint) {
+      this.feedback.set({
+        tone: 'info',
+        message:
+          existingHint === 'ad-hoc'
+            ? `${email} is already in the recipient list.`
+            : `${email} is already included via ${existingHint}.`,
+      });
+      return;
+    }
+
+    this.store.addAdHocEmail(email);
     input.value = '';
+    this.feedback.set({
+      tone: 'success',
+      message: `${email} added to recipients.`,
+    });
+  }
+
+  private hasEmailAlreadyIncluded(email: string): boolean {
+    return this.getExistingEmailHint(email) !== null;
+  }
+
+  private getExistingEmailHint(email: string): string | null {
+    const match = this.store.emailsWithSources().find(item => item.email === email);
+    return match?.hint ?? null;
   }
 }

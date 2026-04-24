@@ -1,0 +1,43 @@
+<div class="card">
+  <div class="card__header">
+    <button
+      class="card__toggle"
+      (click)="expanded.set(!expanded())"
+      [attr.aria-expanded]="expanded()"
+    >
+      <span class="card__arrow">{{ expanded() ? 'v' : '>' }}</span>
+      <span class="card__name">{{ group.name }}</span>
+      <span class="card__count"> {{ activeCount() }}/{{ group.members.length }} </span>
+    </button>
+    <button
+      class="btn btn--icon card__remove"
+      (click)="store.removeGroup(group.id)"
+      [attr.aria-label]="'Remove group ' + group.name"
+    >
+      &times;
+    </button>
+  </div>
+
+  @if (expanded()) {
+    <ul class="card__members">
+      @for (member of group.members; track member.id) {
+        <li class="card__member">
+          <label class="card__member-label">
+            <input
+              type="checkbox"
+              class="card__checkbox"
+              [checked]="!store.isMemberExcluded(group.id, member.id)"
+              (change)="store.toggleGroupMember(group.id, member.id)"
+            />
+            <span
+              class="card__member-name"
+              [class.card__member-name--excluded]="store.isMemberExcluded(group.id, member.id)"
+              >{{ member.name }}</span
+            >
+            <span class="card__member-email">{{ member.email }}</span>
+          </label>
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -5,11 +5,12 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnInit,
+  type OnInit,
   Output,
   inject,
   signal,
 } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { forkJoin } from 'rxjs';
 import { InvitationStore } from '../../store/invitation.store';
 import { ApiService } from '../../services/api.service';
@@ -28,264 +29,29 @@ const FOCUSABLE_SELECTOR = [
 ].join(',');
 
 @Component({
-  selector: 'app-invite-dialog',
+  selector: 'mitigram-invite-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('step', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms 30ms cubic-bezier(0.22, 1, 0.36, 1)'),
+      ]),
+      transition(':leave', [
+        style({ position: 'absolute', inset: '0', overflow: 'hidden' }),
+        animate('180ms ease-in', style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
   imports: [
     AdHocEmailInputComponent,
     AddressBookPanelComponent,
     RecipientsPanelComponent,
     ReviewAndSendComponent,
   ],
-  template: `
-    <!-- Backdrop -->
-    <div class="overlay" (click)="close()">
-      <!-- Dialog — stop clicks bubbling to overlay -->
-      <div class="dialog" role="dialog" aria-modal="true"
-           aria-labelledby="dialog-title"
-           (click)="$event.stopPropagation()">
-
-        <!-- Header -->
-        <header class="dialog__header">
-          <h2 id="dialog-title" class="dialog__title">Invite counterparties</h2>
-          <button class="btn btn--icon dialog__close"
-                  aria-label="Close dialog"
-                  (click)="close()">×</button>
-        </header>
-
-        <!-- Loading skeleton -->
-        @if (loading()) {
-          <div class="dialog__body">
-            <div class="skeleton skeleton--input"></div>
-            <div class="dialog__columns">
-              <div class="dialog__zone-b">
-                <div class="skeleton skeleton--title"></div>
-                <div class="skeleton skeleton--tabs"></div>
-                @for (i of skeletonRows; track i) {
-                  <div class="skeleton skeleton--row"></div>
-                }
-              </div>
-              <div class="dialog__zone-c">
-                <div class="skeleton skeleton--title"></div>
-                <div class="skeleton skeleton--empty"></div>
-              </div>
-            </div>
-          </div>
-          <footer class="dialog__footer">
-            <span class="skeleton skeleton--count"></span>
-            <span class="skeleton skeleton--btn"></span>
-          </footer>
-        } @else if (error()) {
-          <div class="dialog__state dialog__state--error">
-            {{ error() }}<br/>
-            <button class="btn btn--ghost" style="margin-top:.75rem"
-                    (click)="loadData()">Retry</button>
-          </div>
-        } @else if (showReview()) {
-          <!-- Review panel fills the dialog body -->
-          <app-review-and-send
-            [instrumentId]="instrumentId"
-            (back)="showReview.set(false)"
-            (sent)="close()"
-          />
-        } @else {
-          <!-- ── Main body ─────────────────────────────────────────────── -->
-          <div class="dialog__body">
-
-            <!-- Zone A: ad-hoc email input -->
-            <div class="dialog__zone-a">
-              <app-ad-hoc-email-input />
-            </div>
-
-            <!-- Zone B + Zone C side by side -->
-            <div class="dialog__columns">
-              <div class="dialog__zone-b">
-                <app-address-book-panel />
-              </div>
-              <div class="dialog__zone-c">
-                <app-recipients-panel />
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer (req #5: live count) -->
-          <footer class="dialog__footer">
-            <span class="dialog__count">
-              @if (store.finalEmails().length === 0) {
-                No recipients yet
-              } @else {
-                {{ store.finalEmails().length }}
-                unique email{{ store.finalEmails().length !== 1 ? 's' : '' }}
-              }
-            </span>
-            <button
-              class="btn btn--primary"
-              [disabled]="store.finalEmails().length === 0"
-              (click)="showReview.set(true)"
-            >
-              Send invitations
-            </button>
-          </footer>
-        }
-      </div>
-    </div>
-  `,
-  styles: [`
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--overlay);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
-
-    .dialog {
-      background: var(--bg-white);
-      border-radius: 8px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-      width: min(940px, 100%);
-      height: min(680px, 90vh);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* Header */
-    .dialog__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--line);
-      flex-shrink: 0;
-    }
-
-    .dialog__title {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--headline);
-    }
-
-    .dialog__close {
-      font-size: 1.3rem;
-      color: var(--text);
-    }
-
-    /* Skeleton loader */
-    @keyframes shimmer {
-      0%   { background-position: -600px 0; }
-      100% { background-position:  600px 0; }
-    }
-
-    .skeleton {
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--bg-grey) 25%, var(--line) 50%, var(--bg-grey) 75%);
-      background-size: 600px 100%;
-      animation: shimmer 1.4s infinite linear;
-    }
-    .skeleton--input  { height: 36px; width: 100%; flex-shrink: 0; }
-    .skeleton--title  { height: 12px; width: 80px; margin-bottom: 0.75rem; }
-    .skeleton--tabs   { height: 28px; width: 160px; margin-bottom: 0.75rem; }
-    .skeleton--row    { height: 38px; width: 100%; margin-bottom: 0.4rem; }
-    .skeleton--empty  { height: 80px; width: 100%; margin-top: 0.5rem; }
-    .skeleton--count  { height: 16px; width: 120px; display: inline-block; }
-    .skeleton--btn    { height: 34px; width: 140px; display: inline-block; border-radius: 4px; }
-
-    /* Loading / error state */
-    .dialog__state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    .dialog__state--error { color: var(--notification); }
-
-    /* Main body */
-    .dialog__body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 1rem 1.25rem 0;
-      gap: 0.875rem;
-    }
-
-    /* Zone A: ad-hoc input — slim strip at top */
-    .dialog__zone-a {
-      flex-shrink: 0;
-    }
-
-    /* Zone B + C columns — side-by-side on wide, stacked on narrow */
-    .dialog__columns {
-      flex: 1;
-      display: flex;
-      gap: 0;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-    }
-
-    .dialog__zone-b {
-      flex: 0 0 45%;
-      border-right: 1px solid var(--line);
-      padding: 0.875rem;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .dialog__zone-c {
-      flex: 1;
-      padding: 0.875rem;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Narrow dialog: stack zones vertically and let each scroll */
-    @media (max-width: 600px) {
-      .dialog__columns {
-        flex-direction: column;
-        overflow-y: auto;
-      }
-
-      .dialog__zone-b {
-        flex: 0 0 auto;
-        border-right: none;
-        border-bottom: 1px solid var(--line);
-        max-height: 260px;
-      }
-
-      .dialog__zone-c {
-        flex: 0 0 auto;
-        max-height: 240px;
-      }
-    }
-
-    /* Footer */
-    .dialog__footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.875rem 1.25rem;
-      border-top: 1px solid var(--line);
-      flex-shrink: 0;
-    }
-
-    .dialog__count {
-      font-size: 0.875rem;
-      color: var(--text);
-      font-weight: 500;
-    }
-  `],
+  templateUrl: './invite-dialog.component.html',
+  styleUrl: './invite-dialog.component.scss',
 })
 export class InviteDialogComponent implements OnInit {
   @Input({ required: true }) instrumentId!: string;
@@ -296,6 +62,7 @@ export class InviteDialogComponent implements OnInit {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly showReview = signal(false);
+  protected readonly reviewSuccess = signal(false);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly skeletonRows = [1, 2, 3, 4, 5, 6];
@@ -326,13 +93,21 @@ export class InviteDialogComponent implements OnInit {
   }
 
   protected close(): void {
+    this.reviewSuccess.set(false);
+    this.showReview.set(false);
     this.store.reset();
     this.closed.emit();
   }
 
-  // ── Keyboard handling ────────────────────────────────────────────────────
-  // Escape closes from anywhere; Tab is trapped inside the dialog so keyboard
-  // users never land on page content behind the modal.
+  protected openReview(): void {
+    this.reviewSuccess.set(false);
+    this.showReview.set(true);
+  }
+
+  protected handleReviewBack(): void {
+    this.reviewSuccess.set(false);
+    this.showReview.set(false);
+  }
 
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
@@ -350,14 +125,16 @@ export class InviteDialogComponent implements OnInit {
   }
 
   private trapFocus(event: KeyboardEvent, reverse: boolean): void {
-    const focusables = (
-      Array.from(this.host.nativeElement.querySelectorAll(FOCUSABLE_SELECTOR)) as HTMLElement[]
+    const focusables = Array.from(
+      this.host.nativeElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
     ).filter(el => el.offsetParent !== null);
 
-    if (focusables.length === 0) return;
+    if (focusables.length === 0) {
+      return;
+    }
 
     const first = focusables[0];
-    const last  = focusables[focusables.length - 1];
+    const last = focusables[focusables.length - 1];
     const active = document.activeElement as HTMLElement | null;
 
     if (reverse && active === first) {

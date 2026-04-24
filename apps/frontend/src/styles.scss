@@ -1,26 +1,29 @@
 /* ─── Design tokens ────────────────────────────────────────────────────────── */
 :root {
-  --primary:        #2CABD3;
-  --primary-dark:   #177998;
-  --headline:       #235565;
-  --text:           #5D5D5D;
-  --line:           #C6C6C6;
-  --bg-grey:        #EFEFEF;
-  --bg-white:       #FFFFFF;
-  --text-inverse:   #FFFFFF;
-  --notification:   #F96429;
-  --unread:         #EBFAFF;
-  --menu-dark:      #084153;
-  --menu-highlight: #0F586F;
-  --overlay:        rgba(0, 0, 0, 0.5);
+  --primary: #2cabd3;
+  --primary-dark: #177998;
+  --headline: #235565;
+  --text: #5d5d5d;
+  --line: #c6c6c6;
+  --bg-grey: #efefef;
+  --bg-white: #ffffff;
+  --text-inverse: #ffffff;
+  --notification: #f96429;
+  --unread: #ebfaff;
+  --menu-dark: #084153;
+  --menu-highlight: #0f586f;
+  --overlay: rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Reset / base ─────────────────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -40,7 +43,9 @@ html, body {
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
   &:disabled {
     opacity: 0.45;
@@ -89,6 +94,6 @@ html, body {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }

@@ -1,0 +1,15 @@
+<div class="page">
+  <header class="topbar">
+    <span class="topbar__brand">Mitigram</span>
+  </header>
+
+  <main class="content">
+    <div class="instrument-card">
+      <button class="btn btn--primary" (click)="openDialog()">Invite counterparties</button>
+    </div>
+  </main>
+
+  @if (dialogOpen()) {
+    <mitigram-invite-dialog instrumentId="instrument-1" (closed)="closeDialog()" />
+  }
+</div>

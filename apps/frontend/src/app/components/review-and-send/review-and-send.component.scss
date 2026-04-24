@@ -1,0 +1,140 @@
+.review {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.review__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.review__back {
+  font-size: 0.875rem;
+  color: var(--primary);
+}
+
+.review__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--headline);
+  font-weight: 600;
+}
+
+.review__subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.review__list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.review__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--bg-grey);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.review__email {
+  font-size: 0.875rem;
+  color: var(--headline);
+  font-weight: 500;
+}
+
+.review__hint {
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.review__toast {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  z-index: 1;
+  max-width: min(28rem, calc(100% - 2.5rem));
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--notification);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--notification) 10%, var(--bg-white));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  color: var(--headline);
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: toastIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.review__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.review__success {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  animation: successPopIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--headline);
+    font-weight: 500;
+  }
+}
+
+.review__success-icon {
+  font-size: 3rem;
+  color: var(--primary);
+}
+
+@keyframes successPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

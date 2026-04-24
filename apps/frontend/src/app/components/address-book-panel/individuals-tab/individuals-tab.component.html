@@ -1,0 +1,33 @@
+<div class="tab">
+  <input
+    class="tab__search"
+    type="search"
+    placeholder="Search contacts..."
+    [value]="query()"
+    (input)="query.set(asString($event))"
+    aria-label="Search contacts"
+  />
+
+  @if (filtered().length === 0) {
+    <p class="tab__empty">No contacts found.</p>
+  } @else {
+    <ul class="tab__list">
+      @for (contact of filtered(); track contact.id) {
+        <li
+          class="tab__item"
+          [class.tab__item--selected]="store.isIndividualSelected(contact.id)"
+          (click)="toggle(contact.id)"
+        >
+          <span class="tab__avatar">{{ contact.name[0] }}</span>
+          <span class="tab__info">
+            <span class="tab__name">{{ contact.name }}</span>
+            <span class="tab__email">{{ contact.email }}</span>
+          </span>
+          @if (store.isIndividualSelected(contact.id)) {
+            <span class="tab__check" aria-label="Selected">&#10003;</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

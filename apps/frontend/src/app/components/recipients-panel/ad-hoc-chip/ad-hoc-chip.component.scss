@@ -1,0 +1,21 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-white);
+  border: 1px dashed var(--primary);
+  border-radius: 16px;
+  font-size: 0.8rem;
+}
+
+.chip__label {
+  color: var(--text);
+}
+
+.chip__remove {
+  padding: 0 0.2rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--text);
+}

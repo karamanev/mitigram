@@ -1,0 +1,11 @@
+<span class="chip">
+  <span class="chip__name">{{ contact.name }}</span>
+  <span class="chip__email">{{ contact.email }}</span>
+  <button
+    class="chip__remove btn btn--icon"
+    (click)="store.removeIndividual(contact.id)"
+    [attr.aria-label]="'Remove ' + contact.name"
+  >
+    &times;
+  </button>
+</span>

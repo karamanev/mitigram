@@ -5,6 +5,10 @@
   "scripts": {
     "start": "ng serve --port 4200",
     "build": "ng build",
+    "lint": "eslint --ext .ts,.html src --max-warnings=0",
+    "lint:fix": "eslint --ext .ts,.html src --fix --max-warnings=0",
+    "format": "prettier --write \"src/**/*.{ts,html,scss}\" \"*.{json,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss}\" \"*.{json,js}\"",
     "watch": "ng build --watch --configuration development",
     "test:unit": "jest --config jest.config.js"
   },
@@ -22,11 +26,23 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.0",
+    "@angular-eslint/builder": "^17.5.3",
+    "@angular-eslint/eslint-plugin": "^17.5.3",
+    "@angular-eslint/eslint-plugin-template": "^17.5.3",
+    "@angular-eslint/schematics": "^17.5.3",
+    "@angular-eslint/template-parser": "^17.5.3",
     "@angular/cli": "^17.3.0",
     "@angular/compiler-cli": "^17.3.0",
     "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-import-resolver-typescript": "^3.10.1",
+    "eslint-plugin-import": "^2.32.0",
     "jest": "^29.5.0",
     "jest-environment-node": "^29.5.0",
+    "prettier": "^3.8.3",
     "ts-jest": "^29.1.0",
     "typescript": "~5.4.2"
   }

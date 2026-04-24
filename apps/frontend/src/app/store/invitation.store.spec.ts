@@ -13,7 +13,7 @@ import type { Contact, Group } from '@mitigram/shared';
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 const alice: Contact = { id: 'c_alice', name: 'Alice', email: 'alice@example.com' };
-const bob:   Contact = { id: 'c_bob',   name: 'Bob',   email: 'bob@example.com'   };
+const bob: Contact = { id: 'c_bob', name: 'Bob', email: 'bob@example.com' };
 const carol: Contact = { id: 'c_carol', name: 'Carol', email: 'carol@example.com' };
 
 const groupA: Group = {
@@ -25,7 +25,7 @@ const groupA: Group = {
 const groupB: Group = {
   id: 'g_beta',
   name: 'Beta',
-  members: [bob, carol],   // bob overlaps with groupA
+  members: [bob, carol], // bob overlaps with groupA
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -118,16 +118,16 @@ describe('InvitationStore — groups (req #2)', () => {
 describe('InvitationStore — group member exclusion (req #3)', () => {
   it('excluding a member removes their email from finalEmails', () => {
     const store = makeStore();
-    store.addGroup(groupA);              // alice + bob
-    store.toggleGroupMember(groupA.id, bob.id);   // exclude bob
+    store.addGroup(groupA); // alice + bob
+    store.toggleGroupMember(groupA.id, bob.id); // exclude bob
     expect(store.finalEmails()).toEqual(['alice@example.com']);
   });
 
   it('re-including an excluded member restores their email', () => {
     const store = makeStore();
     store.addGroup(groupA);
-    store.toggleGroupMember(groupA.id, bob.id);   // exclude
-    store.toggleGroupMember(groupA.id, bob.id);   // re-include
+    store.toggleGroupMember(groupA.id, bob.id); // exclude
+    store.toggleGroupMember(groupA.id, bob.id); // re-include
     expect(store.finalEmails()).toContain('bob@example.com');
   });
 
@@ -144,7 +144,7 @@ describe('InvitationStore — group member exclusion (req #3)', () => {
     const store = makeStore();
     store.addGroup(groupA);
     store.addGroup(groupB);
-    store.toggleGroupMember(groupA.id, bob.id);   // exclude bob from groupA only
+    store.toggleGroupMember(groupA.id, bob.id); // exclude bob from groupA only
 
     // bob is still in groupB so his email must still appear
     expect(store.finalEmails()).toContain('bob@example.com');
@@ -195,7 +195,7 @@ describe('InvitationStore — deduplication across sources', () => {
   it('individual + group sharing an email → one entry', () => {
     const store = makeStore();
     store.addIndividual(alice);
-    store.addGroup(groupA);   // also contains alice
+    store.addGroup(groupA); // also contains alice
     const emails = store.finalEmails();
     const aliceCount = emails.filter(e => e === 'alice@example.com').length;
     expect(aliceCount).toBe(1);
@@ -203,18 +203,18 @@ describe('InvitationStore — deduplication across sources', () => {
 
   it('two groups sharing a member → one entry for that member', () => {
     const store = makeStore();
-    store.addGroup(groupA);   // alice + bob
-    store.addGroup(groupB);   // bob  + carol
+    store.addGroup(groupA); // alice + bob
+    store.addGroup(groupB); // bob  + carol
     const emails = store.finalEmails();
     const bobCount = emails.filter(e => e === 'bob@example.com').length;
     expect(bobCount).toBe(1);
-    expect(emails).toHaveLength(3);  // alice, bob, carol
+    expect(emails).toHaveLength(3); // alice, bob, carol
   });
 
   it('ad-hoc email matching a group member → one entry', () => {
     const store = makeStore();
     store.addGroup(groupA);
-    store.addAdHocEmail('alice@example.com');   // already in groupA
+    store.addAdHocEmail('alice@example.com'); // already in groupA
     const emails = store.finalEmails();
     expect(emails.filter(e => e === 'alice@example.com')).toHaveLength(1);
   });
@@ -222,10 +222,10 @@ describe('InvitationStore — deduplication across sources', () => {
   it('all three sources combined — total count matches unique emails only', () => {
     const store = makeStore();
     store.addIndividual(alice);
-    store.addGroup(groupA);              // alice (dup) + bob
-    store.addGroup(groupB);              // bob (dup) + carol
+    store.addGroup(groupA); // alice (dup) + bob
+    store.addGroup(groupB); // bob (dup) + carol
     store.addAdHocEmail('new@example.com');
-    store.addAdHocEmail('alice@example.com');  // dup
+    store.addAdHocEmail('alice@example.com'); // dup
     // unique: alice, bob, carol, new → 4
     expect(store.finalEmails()).toHaveLength(4);
   });
@@ -262,7 +262,7 @@ describe('InvitationStore — emailsWithSources (req #5)', () => {
     store.addGroup(groupA);
     const entries = store.emailsWithSources().filter(e => e.email === 'alice@example.com');
     expect(entries).toHaveLength(1);
-    expect(entries[0].hint).toBe('Alice');   // individual, not group
+    expect(entries[0].hint).toBe('Alice'); // individual, not group
   });
 
   it('excluded members do not appear in emailsWithSources', () => {

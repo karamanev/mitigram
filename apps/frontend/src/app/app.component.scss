@@ -1,0 +1,37 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-grey);
+}
+
+.topbar {
+  height: 56px;
+  background: var(--menu-dark);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.topbar__brand {
+  color: var(--text-inverse);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.03em;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.instrument-card {
+  background: var(--bg-white);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--primary);
+  border-radius: 8px;
+  width: min(720px, 100%);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(249, 100, 41, 0.08);
+}

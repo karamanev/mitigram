@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import type { Contact, Group, Invitation } from '@mitigram/shared';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -17,9 +17,8 @@ export class ApiService {
   }
 
   createInvitation(instrumentId: string, emails: string[]): Observable<Invitation> {
-    return this.http.post<Invitation>(
-      `${this.base}/instruments/${instrumentId}/invitations`,
-      { emails },
-    );
+    return this.http.post<Invitation>(`${this.base}/instruments/${instrumentId}/invitations`, {
+      emails,
+    });
   }
 }

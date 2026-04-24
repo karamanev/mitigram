@@ -1,9 +1,19 @@
+# Node / frontend installs
 node_modules/
-dist/
-.angular/
+**/node_modules/
 
-# Prisma generated client and databases
-apps/backend/generated/
+# Frontend build / test output
+dist/
+coverage/
+**/coverage/
+.angular/
+test-results/
+**/test-results/
+playwright-report/
+TestResults/
+*.trx
+
+# SQLite databases
 *.db
 *.db-journal
 *.db-shm
@@ -11,6 +21,13 @@ apps/backend/generated/
 
 # env
 .env
+.claude/settings.local.json
+
+# C# build artifacts
+apps/backend/bin/
+apps/backend/obj/
+apps/backend.Tests/bin/
+apps/backend.Tests/obj/
 
 # OS
 .DS_Store

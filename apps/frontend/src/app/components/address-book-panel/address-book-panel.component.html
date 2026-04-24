@@ -1,0 +1,31 @@
+<div class="panel">
+  <h3 class="panel__title">Address Book</h3>
+  <div class="panel__tabs" role="tablist">
+    <button
+      class="panel__tab"
+      [class.panel__tab--active]="activeTab() === 'individuals'"
+      role="tab"
+      [attr.aria-selected]="activeTab() === 'individuals'"
+      (click)="activeTab.set('individuals')"
+    >
+      Individuals
+    </button>
+    <button
+      class="panel__tab"
+      [class.panel__tab--active]="activeTab() === 'groups'"
+      role="tab"
+      [attr.aria-selected]="activeTab() === 'groups'"
+      (click)="activeTab.set('groups')"
+    >
+      Groups
+    </button>
+  </div>
+
+  <div class="panel__body">
+    @if (activeTab() === 'individuals') {
+      <mitigram-individuals-tab />
+    } @else {
+      <mitigram-groups-tab />
+    }
+  </div>
+</div>
