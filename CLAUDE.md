@@ -25,14 +25,12 @@ recipients from (a) individual contacts, (b) named groups, (c) ad-hoc emails
 ## Repository
 
 The project is hosted on GitLab:
-**https://gitlab.codexio.bg/georgi.karamanev/mitigram**
+**https://gitlab.codexio.bg/codexioltd/training/georgi-karamanev/mitigram**
 
 Clone / set as remote:
 
 ```bash
-git remote add origin git@gitlab.codexio.bg:georgi.karamanev/mitigram.git
-# or, over HTTPS:
-git remote add origin https://gitlab.codexio.bg/georgi.karamanev/mitigram.git
+git remote add origin https://gitlab.codexio.bg/codexioltd/training/georgi-karamanev/mitigram
 ```
 
 - Default branch: `main`
